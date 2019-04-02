@@ -1,0 +1,13 @@
+#
+#场次配置文件 extra: true 表示额外场次，在正常场次没有报满前不会显示在网页上
+#
+
+events:
+  -
+    event: 主旨演讲报名
+    endtime: 2019-4-11
+    webpage: baoming.html
+    sessions:
+      -
+        description: 2019年4月11日 14:15 ~ 16:30
+        limit: 300
