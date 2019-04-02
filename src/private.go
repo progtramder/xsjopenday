@@ -11,14 +11,12 @@ var privateData = struct {
 	AdminPassword string `yaml:"admin_password"`
 }{}
 
-
 func InitPrivate() error {
 	path := systembasePath + "/private.yaml"
 	setting, err := ioutil.ReadFile(path)
 	if err != nil {
 		return err
 	}
-
 
 	err = yaml.Unmarshal(setting, &privateData)
 	if err != nil {
