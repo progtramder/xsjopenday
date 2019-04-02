@@ -1,9 +1,7 @@
 package main
 
 import (
-	"crypto/tls"
 	"fmt"
-	"github.com/mholt/certmagic"
 	"log"
 	"net/http"
 	"os"
@@ -30,17 +28,18 @@ func main() {
 		log.Fatal(err)
 	}
 
+	/*
 	//Starting http router, routing to acme challenge server and app server
 	go func() {
 		fmt.Println("Http router start listening on port:81 ...")
 		log.Fatal(http.ListenAndServe(":81", &router{}))
-	}()
+	}()*/
 
 	wg := sync.WaitGroup{}
 	wg.Add(1)
 
 	go func() {
-		time.Sleep(time.Millisecond * 100)
+		/*time.Sleep(time.Millisecond * 100)
 		certmagic.Agreed = true
 		certmagic.Email = "wolf_wml@163.com"
 		certmagic.CA = certmagic.LetsEncryptProductionCA
@@ -88,7 +87,30 @@ func main() {
 		}
 
 		wg.Done()
-		log.Fatal(tlsSrv.Serve(httpsLn))
+		log.Fatal(tlsSrv.Serve(httpsLn))*/
+
+		fmt.Println("App server start listening on port:443 ...")
+		mux := http.ServeMux{}
+		mux.Handle("/", FileServer(systembasePath+"/webroot"))
+		mux.Handle("/report/", http.StripPrefix("/report/", ReportServer(systembasePath+"/report")))
+		mux.HandleFunc("/baoming", handleBM)
+		mux.HandleFunc("/submit-baoming", handleSubmitBM)
+		mux.HandleFunc("/status", handleStatus)
+		mux.HandleFunc("/register-info", handleRegisterInfo)
+		mux.HandleFunc("/start-baoming", handleStartBaoming)
+		mux.HandleFunc("/admin", handleAdmin)
+		mux.HandleFunc("/develop", handleDevelop)
+		mux.HandleFunc("/reset", handleReset)
+		mux.HandleFunc("/get-events", handlGetEvents)
+		srv := &http.Server{
+			Addr:        ":443",
+			ReadTimeout: 5 * time.Second,
+			Handler:     &mux,
+		}
+
+		wg.Done()
+		log.Fatal(srv.ListenAndServe())
+
 	}()
 
 	//wait for server starting
