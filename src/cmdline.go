@@ -1,6 +1,6 @@
 package main
 
-const prompt = ""
+const prompt = "Input <quit> to terminate server: "
 
 type CLIHandler interface {
 	Handle() int

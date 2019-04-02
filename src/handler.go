@@ -92,33 +92,13 @@ func handleStatus(w http.ResponseWriter, r *http.Request) {
 		Expired: bmEvent.Expired(),
 	}
 
-	full := true
 	for _, v := range bmEvent.sessions {
-		if !v.Extra {
-			if v.number < v.Limit {
-				full = false
-			}
-			s := _session{
-				v.Desc,
-				v.Limit,
-				v.number,
-			}
-			status.Sessions = append(status.Sessions, s)
+		s := _session{
+			v.Desc,
+			v.Limit,
+			v.number,
 		}
-	}
-
-	//如果全部已经报满那么客户端显示没有名额限制的场次
-	if full {
-		for _, v := range bmEvent.sessions {
-			if v.Extra {
-				s := _session{
-					v.Desc,
-					v.Limit,
-					v.number,
-				}
-				status.Sessions = append(status.Sessions, s)
-			}
-		}
+		status.Sessions = append(status.Sessions, s)
 	}
 
 	b, _ := json.Marshal(&status)
