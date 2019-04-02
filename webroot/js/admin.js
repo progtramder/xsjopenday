@@ -4,19 +4,13 @@ new Vue({
   data: {
       event: '',
       started: false,
+      expired: false,
       sessions: [] 
   },
 
   mounted: function() {
       this.event = this.getQueryString("event")
-      axios.get(`/status?event=${this.event}`).then((response) => {
-          const data = response.data
-          this.started = data.started
-          this.sessions = data.sessions
-      }).catch(function (error) {
-          console.log(error)
-      })
-
+      this.fechStatus()
       setInterval(this.fechStatus, 1000)
   },
   methods: {
@@ -33,6 +27,7 @@ new Vue({
           axios.get(`/status?event=${this.event}`).then((response) => {
               const data = response.data
               this.started = data.started
+              this.expired = data.expired
               this.sessions = data.sessions
           }).catch(function (error) {
               console.log(error)

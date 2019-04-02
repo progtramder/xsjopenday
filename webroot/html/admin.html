@@ -13,7 +13,7 @@
 <body>
     <div class="container" id="app">
         <div class="title-event">${event}</div>
-        <button v-bind:disabled="started" v-bind:class="['start', started?'started':'']" @click="handleSubmit">${started?'报名已开始...':'启动报名'}</button>
+        <button v-bind:disabled="started" v-bind:class="['start', started?'started':'']" @click="handleSubmit">${expired?'报名已结束':(started?'报名已开始...':'启动报名')}</button>
         <div class="statistics">
           <div class="report">
               <div style="color:orange;font-weight: bold;">报名统计</div>
@@ -26,6 +26,6 @@
           </div>
         </div>
     </div>
-    <script src="/js/admin.js?v=0.0.2"></script>
+    <script src="/js/admin.js?v=0.0.3"></script>
 </body>
 </html>
