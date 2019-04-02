@@ -38,7 +38,6 @@ new Vue({
           axios.get(`/start-baoming?event=${this.event}`).then((response) => {
               this.started = true
           }).catch(function (error) {
-              alert(error)
               console.log(error)
           })
       },
