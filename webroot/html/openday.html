@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <link rel="stylesheet" type="text/css" href="/css/mbxsj.css?v=0.0.1" />
+    <script src="/js/vue.js"></script>
+    <script src="/js/axios.min.js"></script>
+    <title>{{.Event}}</title>
+</head>
+<body>
+    <div class="container" id="app">
+        <div class="input-wrapper">
+            <input v-bind:disabled="disable" v-model="student" placeholder="学生姓名" />
+        </div>
+        <select v-bind:disabled="disable" class="selection" v-model="gender">
+            <option disabled value="">请选择性别</option>
+            <option value="男">男</option>
+            <option value="女">女</option>
+        </select>
+        <div class="input-wrapper">
+            <input v-bind:disabled="disable" type="number" v-model="phone" placeholder="手机号码" />
+        </div>
+        <select v-bind:disabled="disable" class="selection" v-model="session">
+            <option disabled value="">请选择场次</option>
+            <option v-bind:disabled="item.limit==item.number" v-for="(item, index) in sessions" v-bind:value="index">${item.description}</option>
+        </select>
+        <button v-bind:disabled="disable" class="submit" @click="handleSubmit">${status}</button>
+        <div style="height:2rem;"></div>
+    </div>
+    <script>
+        var g_OpenId = {{.OpenId}}
+        var g_Event = {{.Event}}
+    </script>
+    <script src="/js/mbxsj.js?v=0.0.3"></script>
+</body>
+
+</html>
