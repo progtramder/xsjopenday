@@ -12,18 +12,24 @@
 <body>
     <div class="container" id="app">
         <div class="input-wrapper">
-            <input v-bind:disabled="disable" v-model="student" placeholder="学生姓名" />
+            <input v-bind:disabled="disable" v-model="student" placeholder="孩子姓名" />
         </div>
         <select v-bind:disabled="disable" class="selection" v-model="gender">
-            <option disabled value="">请选择性别</option>
+            <option disabled value="">孩子性别</option>
             <option value="男">男</option>
             <option value="女">女</option>
         </select>
+        <select v-bind:disabled="disable" class="selection" v-model="category">
+            <option disabled value="">证件类型</option>
+            <option value="身份证">身份证</option>
+            <option value="护照">护照</option>
+            <option value="港澳台来往内地通行证">港澳台来往内地通行证</option>
+        </select>
         <div class="input-wrapper">
-            <input v-bind:disabled="disable" type="number" v-model="phone" placeholder="手机号码" />
+            <input v-bind:disabled="disable" v-model="phone" placeholder="证件号码" />
         </div>
         <select v-bind:disabled="disable" class="selection" v-model="session">
-            <option disabled value="">请选择场次</option>
+            <option disabled value="">体验场次</option>
             <option v-bind:disabled="item.limit==item.number" v-for="(item, index) in sessions" v-bind:value="index">${item.description}</option>
         </select>
         <button v-bind:disabled="disable" class="submit" @click="handleSubmit">${status}</button>
@@ -33,7 +39,7 @@
         var g_OpenId = {{.OpenId}}
         var g_Event = {{.Event}}
     </script>
-    <script src="/js/mbxsj.js?v=0.0.3"></script>
+    <script src="/js/openday.js?v=Math.random()"></script>
 </body>
 
 </html>

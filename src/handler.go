@@ -19,8 +19,8 @@ func handleBM(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	code := r.FormValue("code")
-	openId := GetOpenId(code)
+	//code := r.FormValue("code")
+	openId := "testopenid"//GetOpenId(code)
 	if openId == "" {
 		w.WriteHeader(http.StatusUnauthorized)
 		return
