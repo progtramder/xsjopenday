@@ -15,7 +15,7 @@
             <input v-bind:disabled="disable" v-model="student" placeholder="孩子姓名" />
         </div>
         <select v-bind:disabled="disable" class="selection" v-model="gender">
-            <option disabled value="">孩子性别</option>
+            <option disabled value="">性别</option>
             <option value="男">男</option>
             <option value="女">女</option>
         </select>
@@ -29,7 +29,7 @@
             <input v-bind:disabled="disable" v-model="phone" placeholder="证件号码" />
         </div>
         <select v-bind:disabled="disable" class="selection" v-model="session">
-            <option disabled value="">体验场次</option>
+            <option disabled value="">参加体验场次</option>
             <option v-bind:disabled="item.limit==item.number" v-for="(item, index) in sessions" v-bind:value="index">${item.description}</option>
         </select>
         <button v-bind:disabled="disable" class="submit" @click="handleSubmit">${status}</button>
