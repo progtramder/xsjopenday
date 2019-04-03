@@ -56,6 +56,7 @@ func recoverEvent(bmEvent *BMEvent) {
 		ColorGreen("Session: " + sess.Desc)
 		sheetName := trimSheetName(sess.Desc)
 		rows := bmEvent.report.GetRows(sheetName)
+		total := 0
 		for _, row := range rows {
 			// row data: openid, student, gender, phone, category
 			bm := bminfo{}
@@ -64,10 +65,13 @@ func recoverEvent(bmEvent *BMEvent) {
 			bm.gender   = row[2]
 			bm.phone    = row[3]
 			bm.category = row[4]
-			bmEvent.bm[row[0]] = bm
+			if _, ok := bmEvent.bm[row[0]]; !ok {
+				bmEvent.bm[row[0]] = bm
+				total += 1
+			}
 		}
-		bmEvent.sessions[i].number += len(rows)
-		ColorGreen(fmt.Sprintf("%d records recovered", len(rows)))
+		bmEvent.sessions[i].number += total
+		ColorGreen(fmt.Sprintf("%d records recovered", total))
 	}
 }
 
