@@ -56,7 +56,7 @@ var client = &http.Client{}
 
 func GetOpenId(code string) (openId string) {
 	url := fmt.Sprintf("https://api.weixin.qq.com/sns/jscode2session?appid=%s&secret=%s&js_code=%s&grant_type=authorization_code",
-		"wxd6e4f785992e36f1", privateData.AppSecret, code)
+		privateData.AppId, privateData.AppSecret, code)
 	resp, err := client.Get(url)
 	if err != nil {
 		return

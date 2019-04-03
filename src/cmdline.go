@@ -2,7 +2,7 @@ package main
 
 import "fmt"
 
-const prompt = "Input <quit> to terminate server: "
+const prompt = "Input <quit> to terminate server:"
 
 type CLIHandler interface {
 	Handle() int
@@ -39,7 +39,8 @@ func Continue() int {
 	return 1
 }
 
-type chanRecover struct {}
+type chanRecover struct{}
+
 func (self *chanRecover) handle() {
 	ColorGreen("Start recovering ...")
 	for _, v := range bmEventList.events {

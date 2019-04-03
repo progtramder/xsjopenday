@@ -7,10 +7,10 @@ import (
 
 var privateData = struct {
 	Domain        string `yaml:"domain"`
+	AppId         string `yaml:"app_id"`
 	AppSecret     string `yaml:"app_secret"`
 	AdminPassword string `yaml:"admin_password"`
 }{}
-
 
 func InitPrivate() error {
 	path := systembasePath + "/private.yaml"
@@ -18,7 +18,6 @@ func InitPrivate() error {
 	if err != nil {
 		return err
 	}
-
 
 	err = yaml.Unmarshal(setting, &privateData)
 	if err != nil {
