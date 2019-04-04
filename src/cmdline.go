@@ -39,45 +39,59 @@ func Continue() int {
 	return 1
 }
 
-type chanRecover struct{}
-
-func (self *chanRecover) handle() {
-	ColorGreen("Start recovering ...")
-	for _, v := range bmEventList.events {
-		ColorGreen("Event: " + v.name)
-		recoverEvent(v)
+func recoverSession(bmEvent *BMEvent, s int) int {
+	sess := bmEvent.sessions[s]
+	sheetName := trimSheetName(sess.Desc)
+	rows := bmEvent.report.GetRows(sheetName)
+	total := 0
+	if len(rows) == 0 {
+		return 0
 	}
-	ColorGreen("Done.")
+
+	keyRow := rows[0]
+	for i := 1; i < len(rows); i++ {
+		row := rows[i]
+		info := bminfo{session: s}
+		openId := row[0]
+		//somehow the column always greater than actual, why?
+		//so we have to check if the column is empty
+		for j := 1; j < len(row); j++ {
+			key := keyRow[j]
+			value := row[j]
+			if key != "" {
+				info.form = append(info.form, Pair{key, value})
+			}
+		}
+		if _, ok := bmEvent.bm[openId]; !ok {
+			bmEvent.bm[openId] = info
+			total += 1
+		}
+	}
+	return total
 }
 
 func recoverEvent(bmEvent *BMEvent) {
 	bmEvent.Lock()
 	defer bmEvent.Unlock()
+	if bmEvent.started {
+		ColorRed("Fail: the event is started")
+		return
+	}
 	for i, sess := range bmEvent.sessions {
 		ColorGreen("Session: " + sess.Desc)
-		sheetName := trimSheetName(sess.Desc)
-		rows := bmEvent.report.GetRows(sheetName)
-		total := 0
-		for _, row := range rows {
-			// row data: openid, student, gender, phone, category
-			bm := bminfo{}
-			bm.session  = i
-			bm.student  = row[1]
-			bm.gender   = row[2]
-			bm.phone    = row[3]
-			bm.category = row[4]
-			if _, ok := bmEvent.bm[row[0]]; !ok {
-				bmEvent.bm[row[0]] = bm
-				total += 1
-			}
-		}
+		total := recoverSession(bmEvent, i)
 		bmEvent.sessions[i].number += total
 		ColorGreen(fmt.Sprintf("%d records recovered", total))
 	}
 }
 
 func Recover() {
-	dbChannel <- &chanRecover{}
+	ColorGreen("Start recovering ...")
+	for _, v := range bmEventList.events {
+		ColorGreen("Event: " + v.name)
+		recoverEvent(v)
+	}
+	ColorGreen("Done.")
 }
 
 var CmdLineHandler = map[string]CLIHandler{

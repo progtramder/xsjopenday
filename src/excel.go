@@ -27,18 +27,36 @@ func trimSheetName(name string) string {
 	return name
 }
 
-func (self *excel) register(openId, student, gender, phone, category, session string) {
+func (self *excel) register(openId, session string, info bminfo) {
 	sheetName := trimSheetName(session)
 	index := self.NewSheet(sheetName)
-	self.InsertRow(sheetName, 1)
-	self.SetCellValue(sheetName, "A1", openId)
-	self.SetCellValue(sheetName, "B1", student)
-	self.SetCellValue(sheetName, "C1", gender)
-	self.SetCellValue(sheetName, "D1", phone)
-	self.SetCellValue(sheetName, "E1", category)
-	if self.GetColWidth(sheetName, "A") != 20 {
-		self.SetColWidth(sheetName, "A", "E", 20)
+
+	//make the title of each column
+	if len(self.GetRows(sheetName)) == 0 {
+		self.InsertRow(sheetName, 1)
+		style, _ := self.NewStyle(`{"font":{"bold":true}}`)
+		column := 'A'
+		axis := fmt.Sprintf("%c1", column)
+		self.SetCellValue(sheetName, axis, "OpenId")
+		for _, v := range info.form {
+			column++
+			axis = fmt.Sprintf("%c1", column)
+			self.SetCellValue(sheetName, axis, v.key)
+		}
+		self.SetCellStyle(sheetName, "A1", fmt.Sprintf("%c1", column), style)
+		self.SetColWidth(sheetName, "A", fmt.Sprintf("%c", column), 20)
 	}
+	//information starts from row 2
+	self.InsertRow(sheetName, 2)
+	column := 'A'
+	axis := fmt.Sprintf("%c2", column)
+	self.SetCellValue(sheetName, axis, openId)
+	for _, v := range info.form {
+		column++
+		axis = fmt.Sprintf("%c2", column)
+		self.SetCellValue(sheetName, axis, v.value)
+	}
+
 	self.SetActiveSheet(index)
 	self.DeleteSheet("Sheet1")
 	self.Save()

@@ -7,6 +7,7 @@ import (
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"net/http"
+	"strings"
 	"sync"
 	"time"
 )
@@ -32,23 +33,21 @@ func dbRoutine() {
 type chanRegister struct {
 	event  string
 	openId string
-	bm     bminfo
+	info   bminfo
 }
 
-func register(event, openId, student, gender, phone, category string, session int) {
+func register(event, openId string, info bminfo) {
 	dbChannel <- &chanRegister{
 		event,
 		openId,
-		bminfo{student, gender, phone, category, session},
+		info,
 	}
 }
 
 func (self *chanRegister) handle() {
 	bmEvent := bmEventList.GetEvent(self.event)
 	if bmEvent != nil {
-		bmEvent.report.register(self.openId,
-			self.bm.student, self.bm.gender, self.bm.phone, self.bm.category,
-			bmEvent.sessions[self.bm.session].Desc)
+		bmEvent.report.register(self.openId, bmEvent.sessions[self.info.session].Desc, self.info)
 	}
 }
 
@@ -101,12 +100,53 @@ func Reason(errCode int) string {
 	}
 }
 
+type Pair struct {
+	key   string
+	value string
+}
+
 type bminfo struct {
-	student  string
-	gender   string
-	phone    string
-	category string
-	session  int
+	session int
+	form    []Pair
+}
+//parse json data like {"name":"Jessica","gender":"female"} into Pair array
+func (self *bminfo) Load(data []byte) {
+	kv := strings.TrimSuffix(strings.TrimPrefix(string(data), "{"), "}")
+	pairs := strings.Split(kv, ",")
+	for _, v := range pairs {
+		kv := strings.Split(v, ":")
+		key := strings.TrimSpace(kv[0])
+		value := strings.TrimSpace(kv[1])
+		pair := Pair {
+			strings.TrimSuffix(strings.TrimPrefix(key, `"`), `"`),
+			strings.TrimSuffix(strings.TrimPrefix(value, `"`), `"`),
+		}
+		self.form = append(self.form, pair)
+	}
+}
+
+func (self *bminfo) Dump() string {
+	if self.form == nil {
+		return "null"
+	}
+
+	data := "{"
+	for _, v := range self.form {
+		data += fmt.Sprintf(`"%s":"%s"`, v.key, v.value)
+		data += ","
+	}
+	data += fmt.Sprintf(`"session":"%d"`, self.session)
+	data += "}"
+	return data
+}
+
+func (self bminfo) Equal(info bminfo) bool {
+	for i, v := range info.form {
+		if v.key != self.form[i].key || v.value != self.form[i].value {
+			return false
+		}
+	}
+	return true
 }
 
 type BMEvent struct {
@@ -120,27 +160,27 @@ type BMEvent struct {
 	bm       map[string]bminfo
 }
 
-func (self *BMEvent) put(token, student, gender, phone, category string, session int) int {
+func (self *BMEvent) put(token string, info bminfo) int {
 	self.Lock()
 	defer self.Unlock()
 	if !self.started {
 		return errNotStarted
 	}
 	for k, v := range self.bm {
-		if k == token || v.phone == phone {
+		if k == token || v.Equal(info) {
 			return errRepeat
 		}
 	}
-	if session >= len(self.sessions) {
+	if info.session >= len(self.sessions) {
 		return errInvalidSession
 	}
-	s := &self.sessions[session]
+	s := &self.sessions[info.session]
 	if s.number >= s.Limit {
 		return errReachLimit
 	}
 
 	s.number++
-	self.bm[token] = bminfo{student, gender, phone, category, session}
+	self.bm[token] = info
 	return errSuccess
 }
 

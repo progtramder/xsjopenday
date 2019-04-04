@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"html/template"
 	"io"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"strconv"
@@ -19,8 +20,8 @@ func handleBM(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	//code := r.FormValue("code")
-	openId := "testopenid"//GetOpenId(code)
+	code := r.FormValue("code")
+	openId := GetOpenId(code)
 	if openId == "" {
 		w.WriteHeader(http.StatusUnauthorized)
 		return
@@ -48,21 +49,22 @@ func handleSubmitBM(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	student := r.FormValue("student")
-	gender := r.FormValue("gender")
-	phone := r.FormValue("phone")
-	category := r.FormValue("category")
 	s := r.FormValue("session")
 	openId := r.FormValue("openid")
 	session, _ := strconv.ParseInt(s, 10, 32)
-	//category 不是必须属性，由前端js代码决定是否检查
-	if openId == "" || student == "" || gender == "" || phone == "" || session < 0 {
+
+	if openId == "" || session < 0 {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	errCode := bmEvent.put(openId, student, gender, phone, category, int(session))
+
+	data, _ := ioutil.ReadAll(r.Body)
+	r.Body.Close()
+	info := bminfo{int(session), nil}
+	info.Load(data)
+	errCode := bmEvent.put(openId, info)
 	if errCode == errSuccess {
-		register(event, openId, student, gender, phone, category, int(session))
+		register(event, openId, info)
 	}
 	w.Write([]byte(fmt.Sprintf(`{"errCode":%d,"errMsg":"%s"}`, errCode, Reason(errCode))))
 }
@@ -121,17 +123,8 @@ func handleRegisterInfo(w http.ResponseWriter, r *http.Request) {
 
 	bmEvent.RLock()
 	defer bmEvent.RUnlock()
-	info, ok := bmEvent.has(openId)
-	student, gender, phone, category, session := "", "", "", "", ""
-	if ok {
-		student = info.student
-		gender = info.gender
-		phone = info.phone
-		category = info.category
-		session = fmt.Sprintf("%d", info.session)
-	}
-	w.Write([]byte(fmt.Sprintf(`{"student":"%s","gender":"%s","phone":"%s","category":"%s","session":"%s"}`,
-		student, gender, phone, category, session)))
+	info, _ := bmEvent.has(openId)
+	w.Write([]byte(info.Dump()))
 }
 
 // Admin handlers

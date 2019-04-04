@@ -92,7 +92,7 @@ func saveUpload(fh *multipart.FileHeader) error {
 	}
 	defer f.Close()
 	n, err := io.Copy(f, file)
-	//if the size of new file is less than the existed file, truncate is necessary,
+	//if the size of new file is less than the existed file, truncate is must,
 	f.Truncate(n)
 	return err
 }

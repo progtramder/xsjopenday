@@ -4,8 +4,8 @@ new Vue({
   data: {
       student: '',
       gender: '',
-      phone: '',
-      category: '',
+      idType: '',
+      idNumber: '',
       session: '',
       registered: false,
       started: false,
@@ -41,11 +41,11 @@ new Vue({
 
       axios.get(`/register-info?event=${g_Event}&openid=${g_OpenId}`).then((response) => {
           const data = response.data
-          if (data.student != '') {
-              this.student = data.student
-              this.gender = data.gender
-              this.phone = data.phone
-              this.category = data.category
+          if (data) {
+              this.student = data['孩子姓名']
+              this.gender = data['性别']
+              this.idType = data['证件类型']
+              this.idNumber = data['证件号码']
               this.session = data.session
               this.registered = true
           }
@@ -78,8 +78,8 @@ new Vue({
       handleSubmit() {
           const student = this.student
           const gender = this.gender
-          const phone = this.phone
-          const category = this.category
+          const idType = this.idType
+          const idNumber = this.idNumber
           const session = this.session
           if (student === '') {
               alert("请输入孩子姓名")
@@ -89,11 +89,11 @@ new Vue({
               alert("请选择孩子性别")
               return
           }
-          if (category === '') {
+          if (idType === '') {
             alert("请选择证件类型")
             return
           }
-          if (phone === '') {
+          if (idNumber === '') {
               alert("请输入证件号码")
               return
           }
@@ -101,7 +101,12 @@ new Vue({
               alert("请选择体验场次")
               return
           }
-          axios.get(`/submit-baoming?event=${g_Event}&openid=${g_OpenId}&student=${student}&gender=${gender}&phone=${phone}&category=${category}&session=${session}`).then((response) => {
+          axios.post(`/submit-baoming?event=${g_Event}&openid=${g_OpenId}&session=${session}`, {
+              '孩子姓名': student,
+              '性别': gender,
+              '证件类型': idType,
+              '证件号码': idNumber
+          }).then((response) => {
               const data = response.data
               if (data.errCode == 0) {
                   this.registered = true
