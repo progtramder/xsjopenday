@@ -36,18 +36,10 @@ type chanRegister struct {
 	info   bminfo
 }
 
-func register(event, openId string, info bminfo) {
-	dbChannel <- &chanRegister{
-		event,
-		openId,
-		info,
-	}
-}
-
 func (self *chanRegister) handle() {
 	bmEvent := bmEventList.GetEvent(self.event)
 	if bmEvent != nil {
-		bmEvent.report.register(self.openId, bmEvent.sessions[self.info.session].Desc, self.info)
+		bmEvent.report.serialize(self.openId, bmEvent.sessions[self.info.session].Desc, self.info)
 	}
 }
 
@@ -109,6 +101,7 @@ type bminfo struct {
 	session int
 	form    []Pair
 }
+
 //parse json data like {"name":"Jessica","gender":"female"} into Pair array
 func (self *bminfo) Load(data []byte) {
 	kv := strings.TrimSuffix(strings.TrimPrefix(string(data), "{"), "}")
@@ -117,7 +110,7 @@ func (self *bminfo) Load(data []byte) {
 		kv := strings.Split(v, ":")
 		key := strings.TrimSpace(kv[0])
 		value := strings.TrimSpace(kv[1])
-		pair := Pair {
+		pair := Pair{
 			strings.TrimSuffix(strings.TrimPrefix(key, `"`), `"`),
 			strings.TrimSuffix(strings.TrimPrefix(value, `"`), `"`),
 		}
@@ -236,6 +229,14 @@ func (self *BMEvent) Start() {
 	self.Lock()
 	self.started = true
 	self.Unlock()
+}
+
+func (self *BMEvent) serialize(openId string, info bminfo) {
+	dbChannel <- &chanRegister{
+		self.name,
+		openId,
+		info,
+	}
 }
 
 type BMEventList struct {

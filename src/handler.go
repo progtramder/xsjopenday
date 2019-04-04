@@ -64,7 +64,7 @@ func handleSubmitBM(w http.ResponseWriter, r *http.Request) {
 	info.Load(data)
 	errCode := bmEvent.put(openId, info)
 	if errCode == errSuccess {
-		register(event, openId, info)
+		bmEvent.serialize(openId, info)
 	}
 	w.Write([]byte(fmt.Sprintf(`{"errCode":%d,"errMsg":"%s"}`, errCode, Reason(errCode))))
 }

@@ -27,7 +27,7 @@ func trimSheetName(name string) string {
 	return name
 }
 
-func (self *excel) register(openId, session string, info bminfo) {
+func (self *excel) serialize(openId, session string, info bminfo) {
 	sheetName := trimSheetName(session)
 	index := self.NewSheet(sheetName)
 

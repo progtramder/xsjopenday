@@ -29,11 +29,11 @@ func main() {
 	}
 
 	/*
-	//Starting http router, routing to acme challenge server and app server
-	go func() {
-		fmt.Println("Http router start listening on port:81 ...")
-		log.Fatal(http.ListenAndServe(":81", &router{}))
-	}()*/
+		//Starting http router, routing to acme challenge server and app server
+		go func() {
+			fmt.Println("Http router start listening on port:81 ...")
+			log.Fatal(http.ListenAndServe(":81", &router{}))
+		}()*/
 
 	wg := sync.WaitGroup{}
 	wg.Add(1)

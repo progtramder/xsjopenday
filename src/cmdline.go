@@ -1,6 +1,9 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"sync"
+)
 
 const prompt = "Input <quit> to terminate server:"
 
@@ -74,9 +77,10 @@ func recoverEvent(bmEvent *BMEvent) {
 	bmEvent.Lock()
 	defer bmEvent.Unlock()
 	if bmEvent.started {
-		ColorRed("Fail: the event is started")
+		ColorRed("Fail: event is started")
 		return
 	}
+
 	for i, sess := range bmEvent.sessions {
 		ColorGreen("Session: " + sess.Desc)
 		total := recoverSession(bmEvent, i)
@@ -85,13 +89,24 @@ func recoverEvent(bmEvent *BMEvent) {
 	}
 }
 
-func Recover() {
+type chanRecover struct{
+	*sync.WaitGroup
+}
+func (self *chanRecover) handle() {
 	ColorGreen("Start recovering ...")
 	for _, v := range bmEventList.events {
 		ColorGreen("Event: " + v.name)
 		recoverEvent(v)
 	}
 	ColorGreen("Done.")
+	self.Done()
+}
+
+func Recover() {
+	wg := sync.WaitGroup{}
+	wg.Add(1)
+	dbChannel <- &chanRecover{&wg}
+	wg.Wait()
 }
 
 var CmdLineHandler = map[string]CLIHandler{
